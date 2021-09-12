@@ -109,45 +109,9 @@ namespace BendUrAcc
 								_needRefreshSlotInfo = true;
 							}
 							GUI.enabled = true;
-							/*
-							if (_cmpDynamicBone == null)
-							{
-								GUI.enabled = false;
-								GUILayout.Button("DB", _gloButtonM);
-								GUI.enabled = true;
-							}
-							else
-							{
-								if (GUILayout.Button("DB", (_cmpDynamicBone.enabled ? _buttonActive : GUI.skin.button), _gloButtonM))
-									_cmpDynamicBone.enabled = !_cmpDynamicBone.enabled;
-							}
-							*/
 						}
 						GUILayout.EndHorizontal();
-						/*
-						GUILayout.BeginHorizontal(GUI.skin.box, GUILayout.ExpandWidth(false));
-						{
-							GUILayout.Label("DynamicBone:");
 
-							GUILayout.FlexibleSpace();
-
-							if (_cmpDynamicBone == null)
-							{
-								GUI.enabled = false;
-								GUILayout.Button("On", _gloButtonM);
-								GUI.enabled = true;
-							}
-							else
-							{
-								if (GUILayout.Button("On", (_cmpDynamicBone.enabled ? _buttonActive : GUI.skin.button), _gloButtonM))
-								{
-									_cmpDynamicBone.enabled = !_cmpDynamicBone.enabled;
-									_enableEdit = !_cmpDynamicBone.enabled;
-								}
-							}
-						}
-						GUILayout.EndHorizontal();
-						*/
 						GUILayout.BeginHorizontal(GUI.skin.box);
 						GUILayout.Label(GUI.tooltip);
 						GUILayout.EndHorizontal();
@@ -212,7 +176,13 @@ namespace BendUrAcc
 					else
 						GUILayout.Space(19);
 
-					if (_gameObject.GetComponent<ListInfoComponent>() != null && _gameObject.name.StartsWith("ca_slot"))
+					if (_isAccessoryClothes)
+					{
+						GUI.enabled = false;
+						GUILayout.Button(new GUIContent(_gameObject.name, "This is used by Accessory Clothes, do not edit"), GUILayout.ExpandWidth(false));
+						GUI.enabled = true;
+					}
+					else if (_gameObject.GetComponent<ListInfoComponent>() != null && _gameObject.name.StartsWith("ca_slot"))
 					{
 						GUI.enabled = false;
 						GUILayout.Button(new GUIContent(_gameObject.name, "ca_slot is used for PartsInfo, do not edit"), GUILayout.ExpandWidth(false));
@@ -238,52 +208,50 @@ namespace BendUrAcc
 					}
 					else
 					{
+						if (GUILayout.Button(_gameObject.name, GUILayout.ExpandWidth(false)))
 						{
-							if (GUILayout.Button(_gameObject.name, GUILayout.ExpandWidth(false)))
-							{
-								_enableEdit = true;
-								_cmpDynamicBone = null;
+							_enableEdit = true;
+							_cmpDynamicBone = null;
 
-								Dictionary<Transform, DynamicBone> _cmps = _selectedParentGameObject.GetComponents<DynamicBone>()?.Where(x => x.m_Root != null).ToDictionary(x => x.m_Root, x => x);
-								if (_cmps?.Count > 0)
+							Dictionary<Transform, DynamicBone> _cmps = _selectedParentGameObject.GetComponents<DynamicBone>()?.Where(x => x.m_Root != null).ToDictionary(x => x.m_Root, x => x);
+							if (_cmps?.Count > 0)
+							{
+								foreach (KeyValuePair<Transform, DynamicBone> _kvp in _cmps)
 								{
-									foreach (KeyValuePair<Transform, DynamicBone> _kvp in _cmps)
+									if (_kvp.Key.name == _gameObject.name)
 									{
-										if (_kvp.Key.name == _gameObject.name)
-										{
+										_cmpDynamicBone = _kvp.Value;
+										break;
+									}
+									else if (_kvp.Key.GetComponentsInParent<Transform>(true).Any(x => x.name == _gameObject.name))
+									{
+										if (_gameObject.transform.parent.childCount == 1)
 											_cmpDynamicBone = _kvp.Value;
-											break;
-										}
-										else if (_kvp.Key.GetComponentsInParent<Transform>(true).Any(x => x.name == _gameObject.name))
+										break;
+									}
+									else
+									{
+										foreach (Transform x in _kvp.Key.GetComponentsInChildren<Transform>(true).Where(x => x.name == _gameObject.name))
 										{
-											if (_gameObject.transform.parent.childCount == 1)
-												_cmpDynamicBone = _kvp.Value;
-											break;
-										}
-										else
-										{
-											foreach (Transform x in _kvp.Key.GetComponentsInChildren<Transform>(true).Where(x => x.name == _gameObject.name))
+											if (x.GetComponentsInParent<ListInfoComponent>(true).FirstOrDefault().name == _selectedParentGameObject.name)
 											{
-												if (x.GetComponentsInParent<ListInfoComponent>(true).FirstOrDefault().name == _selectedParentGameObject.name)
-												{
-													if (_gameObject.transform.parent.childCount == 1)
-														_cmpDynamicBone = _kvp.Value;
-													break;
-												}
+												if (_gameObject.transform.parent.childCount == 1)
+													_cmpDynamicBone = _kvp.Value;
+												break;
 											}
 										}
 									}
 								}
-
-								if (_isDynamicBoneEnabled)
-								{
-									_enableEdit = false;
-									_logger.LogMessage($"{_gameObject.name} is locked for editing because it is affacted by DynamicBone");
-								}
-
-								SetSelectedBone(_gameObject);
-								_currentNodeModifier = _pluginCtrl.GetModifier(_currentCoordinateIndex, _currentSlotIndex, _selectedBoneGameObject.name);
 							}
+
+							if (_isDynamicBoneEnabled)
+							{
+								_enableEdit = false;
+								_logger.LogMessage($"{_gameObject.name} is locked for editing because it is affacted by DynamicBone");
+							}
+
+							SetSelectedBone(_gameObject);
+							_currentNodeModifier = _pluginCtrl.GetModifier(_currentCoordinateIndex, _currentSlotIndex, _selectedBoneGameObject.name);
 						}
 					}
 

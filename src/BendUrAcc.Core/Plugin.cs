@@ -23,7 +23,7 @@ namespace BendUrAcc
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.0.1.0";
+		public const string Version = "1.0.2.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -82,6 +82,18 @@ namespace BendUrAcc
 		private void Start()
 		{
 			CharacterApi.RegisterExtraBehaviour<BendUrAccController>(ExtDataKey);
+
+			{
+				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("madevil.kk.MovUrAcc");
+				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.10.1.0"))
+					_logger.LogError($"MovUrAcc 1.10.1.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
+			}
+
+			{
+				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("madevil.kk.ca");
+				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.7.0.0"))
+					_logger.LogError($"Character Accessory 1.7.0.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
+			}
 
 			{
 				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("KKABMX.Core");

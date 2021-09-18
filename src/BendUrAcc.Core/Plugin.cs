@@ -23,7 +23,7 @@ namespace BendUrAcc
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.0.2.0";
+		public const string Version = "1.0.3.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -129,14 +129,14 @@ namespace BendUrAcc
 
 				if (_args.TopIndex == 4)
 				{
+					_charaConfigWindow._onAccTab = true;
+					StartCoroutine(ToggleButtonVisibility());
+
 					if (_args.SideToggle?.GetComponentInChildren<CvsAccessory>(true) == null)
 					{
 						_charaConfigWindow.enabled = false;
 						return;
 					}
-
-					_charaConfigWindow._onAccTab = true;
-					StartCoroutine(ToggleButtonVisibility());
 				}
 				else
 				{

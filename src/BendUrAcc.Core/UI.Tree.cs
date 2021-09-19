@@ -200,12 +200,14 @@ namespace BendUrAcc
 						GUILayout.Button(new GUIContent(_gameObject.name, "This GameObject is used for PartsInfo, do not edit"), GUILayout.ExpandWidth(false));
 						GUI.enabled = true;
 					}
+					/*
 					else if (_gameObject.GetComponent<Renderer>() != null || _gameObject.GetComponentsInParent<Renderer>(true)?.Length > 0)
 					{
 						GUI.enabled = false;
 						GUILayout.Button(new GUIContent(_gameObject.name, "This GameObject is used by a Renderer, do not edit"), GUILayout.ExpandWidth(false));
 						GUI.enabled = true;
 					}
+					*/
 					else
 					{
 						if (GUILayout.Button(_gameObject.name, GUILayout.ExpandWidth(false)))

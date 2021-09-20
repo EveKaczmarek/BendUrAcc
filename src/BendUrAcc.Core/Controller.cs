@@ -129,7 +129,7 @@ namespace BendUrAcc
 			internal void AccessoriesCopiedHandler(int _srcCoordinateIndex, int _dstCoordinateIndex, List<int> _copiedSlotIndexes)
 			{
 				foreach (int _slotIndex in _copiedSlotIndexes)
-					CloneRule(_slotIndex, _slotIndex, _srcCoordinateIndex, _dstCoordinateIndex);
+					CloneModifier(_slotIndex, _slotIndex, _srcCoordinateIndex, _dstCoordinateIndex);
 
 				if (_dstCoordinateIndex == _currentCoordinateIndex)
 				{
@@ -140,7 +140,7 @@ namespace BendUrAcc
 
 			internal void AccessoryTransferredHandler(int _srcSlotIndex, int _dstSlotIndex)
 			{
-				CloneRule(_srcSlotIndex, _dstSlotIndex, _currentCoordinateIndex);
+				CloneModifier(_srcSlotIndex, _dstSlotIndex, _currentCoordinateIndex);
 
 				RefreshCache();
 				StartCoroutine(ApplyBendModifierListHack("AccessoryTransferredHandler"));
@@ -169,8 +169,8 @@ namespace BendUrAcc
 			internal void ApplyBendModifierList(string _caller)
 			{
 				if (_duringLoadChange) return;
-				/*
 				AccGotHighRemoveEffect();
+				/*
 				_triggerSlots = new HashSet<int>(ListCoordinateRule().OrderBy(x => x.Slot).Select(x => x.Slot));
 				if (_triggerSlots?.Count == 0) return;
 				DebugMsg(LogLevel.Info, $"[ApplyParentRuleList][{_caller}][_currentCoordinateIndex: {_currentCoordinateIndex}][count: {_triggerSlots?.Count}]");
@@ -216,9 +216,9 @@ namespace BendUrAcc
 				Traverse.Create(GetBoneController(ChaControl)).Property("NeedsBaselineUpdate").SetValue(true);
 			}
 
-			internal void CloneRule(int _srcSlotIndex, int _dstSlotIndex) => CloneRule(_srcSlotIndex, _dstSlotIndex, _currentCoordinateIndex, _currentCoordinateIndex);
-			internal void CloneRule(int _srcSlotIndex, int _dstSlotIndex, int _coordinateIndex) => CloneRule(_srcSlotIndex, _dstSlotIndex, _coordinateIndex, _coordinateIndex);
-			internal void CloneRule(int _srcSlotIndex, int _dstSlotIndex, int _srcCoordinateIndex, int _dstCoordinateIndex)
+			internal void CloneModifier(int _srcSlotIndex, int _dstSlotIndex) => CloneModifier(_srcSlotIndex, _dstSlotIndex, _currentCoordinateIndex, _currentCoordinateIndex);
+			internal void CloneModifier(int _srcSlotIndex, int _dstSlotIndex, int _coordinateIndex) => CloneModifier(_srcSlotIndex, _dstSlotIndex, _coordinateIndex, _coordinateIndex);
+			internal void CloneModifier(int _srcSlotIndex, int _dstSlotIndex, int _srcCoordinateIndex, int _dstCoordinateIndex)
 			{
 				BendModifierList.RemoveAll(x => x.Coordinate == _dstCoordinateIndex && x.Slot == _dstSlotIndex);
 				List<BendModifier> _modifiers = ListSlotModifier(_srcCoordinateIndex, _srcSlotIndex).JsonClone<List<BendModifier>>();

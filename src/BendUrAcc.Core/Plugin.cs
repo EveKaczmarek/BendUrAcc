@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 
 using ChaCustom;
 
@@ -23,7 +24,7 @@ namespace BendUrAcc
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.0.4.0";
+		public const string Version = "1.0.5.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -43,6 +44,7 @@ namespace BendUrAcc
 		internal static MakerButton _accWinCtrlEnable;
 		internal static Type BoneController;
 		internal static Type ChaAccessoryClothes;
+		internal static Dictionary<string, Type> _types = new Dictionary<string, Type>();
 
 		private void Awake()
 		{
@@ -85,14 +87,14 @@ namespace BendUrAcc
 
 			{
 				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("madevil.kk.MovUrAcc");
-				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.10.1.0"))
-					_logger.LogError($"MovUrAcc 1.10.1.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
+				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.10.3.0"))
+					_logger.LogError($"MovUrAcc 1.10.3.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
 			}
 
 			{
 				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("madevil.kk.ca");
-				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.7.0.0"))
-					_logger.LogError($"Character Accessory 1.7.0.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
+				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.7.2.0"))
+					_logger.LogError($"Character Accessory 1.7.2.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
 			}
 
 			{
@@ -103,6 +105,12 @@ namespace BendUrAcc
 			{
 				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("com.deathweasel.bepinex.accessoryclothes");
 				ChaAccessoryClothes = _instance.GetType().Assembly.GetType("KK_Plugins.ChaAccessoryClothes");
+			}
+
+			{
+				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("madevil.kk.AccGotHigh");
+				if (_instance != null)
+					_types["AccGotHigh"] = _instance.GetType();
 			}
 
 			JetPack.Chara.OnChangeCoordinateType += (_sender, _args) =>
@@ -212,6 +220,13 @@ namespace BendUrAcc
 			if (_pluginCtrl == null) return;
 
 			_pluginCtrl._duringLoadChange = false;
+		}
+
+		internal static void AccGotHighRemoveEffect()
+		{
+			if (!_types.ContainsKey("AccGotHigh"))
+				return;
+			Traverse.Create(_types["AccGotHigh"]).Method("RemoveEffect").GetValue();
 		}
 
 		internal static void DebugMsg(LogLevel _level, string _meg)

@@ -24,7 +24,7 @@ namespace BendUrAcc
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.0.5.0";
+		public const string Version = "1.0.6.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -50,7 +50,10 @@ namespace BendUrAcc
 		{
 			_logger = base.Logger;
 			_instance = this;
+		}
 
+		private void Start()
+		{
 			_cfgDebugMode = Config.Bind("Debug", "Debug Mode", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 20 }));
 			_cfgMakerWinX = Config.Bind("Maker", "Config Window Startup X", 525f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 19 }));
 			_cfgMakerWinX.SettingChanged += (_sender, _args) =>
@@ -79,10 +82,7 @@ namespace BendUrAcc
 			_cfgPosIncValue = Config.Bind("Config", "Position Increament", 0.001f, new ConfigDescription("Position increament/decrement initiial setting", new AcceptableValueList<float>(0.001f, 0.01f, 0.1f, 1f), new ConfigurationManagerAttributes { Order = 8 }));
 			_cfgRotIncValue = Config.Bind("Config", "Rotation Increament", 1f, new ConfigDescription("Rotation increament/decrement initiial setting", new AcceptableValueList<float>(0.01f, 0.1f, 1f, 10f), new ConfigurationManagerAttributes { Order = 7 }));
 			_cfgSclIncValue = Config.Bind("Config", "Scale Increament", 0.01f, new ConfigDescription("Scale increament/decrement initiial setting", new AcceptableValueList<float>(0.001f, 0.01f, 0.1f, 1f), new ConfigurationManagerAttributes { Order = 6 }));
-		}
 
-		private void Start()
-		{
 			CharacterApi.RegisterExtraBehaviour<BendUrAccController>(ExtDataKey);
 
 			{
@@ -158,6 +158,7 @@ namespace BendUrAcc
 				_charaConfigWindow = gameObject.AddComponent<BendUrAccUI>();
 				_accWinCtrlEnable = MakerAPI.AddAccessoryWindowControl(new MakerButton("BendUrAcc", null, this));
 				_accWinCtrlEnable.OnClick.AddListener(() => _charaConfigWindow.enabled = true);
+				_accWinCtrlEnable.Visible.OnNext(false);
 			};
 
 			MakerAPI.MakerFinishedLoading += (_sender, _args) =>
@@ -184,8 +185,13 @@ namespace BendUrAcc
 			yield return JetPack.Toolbox.WaitForEndOfFrame;
 			yield return JetPack.Toolbox.WaitForEndOfFrame;
 
-			ChaFileAccessory.PartsInfo _part = JetPack.Accessory.GetPartsInfo(CustomBase.Instance.chaCtrl, JetPack.CharaMaker.CurrentAccssoryIndex);
-			_accWinCtrlEnable.Visible.OnNext(_part?.type != 120);
+			if (JetPack.CharaMaker.CurrentAccssoryIndex < 0)
+				_accWinCtrlEnable.Visible.OnNext(false);
+			else
+			{
+				ChaFileAccessory.PartsInfo _part = JetPack.Accessory.GetPartsInfo(CustomBase.Instance.chaCtrl, JetPack.CharaMaker.CurrentAccssoryIndex);
+				_accWinCtrlEnable.Visible.OnNext(_part?.type != 120);
+			}
 		}
 
 		internal static void OnChangeCoordinateType(JetPack.Chara.ChangeCoordinateTypeEventArgs _args)

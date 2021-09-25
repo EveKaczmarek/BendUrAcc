@@ -214,34 +214,15 @@ namespace BendUrAcc
 						{
 							_enableEdit = true;
 							_cmpDynamicBone = null;
-
-							Dictionary<Transform, DynamicBone> _cmps = _selectedParentGameObject.GetComponents<DynamicBone>()?.Where(x => x.m_Root != null).ToDictionary(x => x.m_Root, x => x);
+							List<DynamicBone> _cmps = _selectedParentGameObject.GetComponents<DynamicBone>()?.Where(x => x.m_Root != null).ToList();
 							if (_cmps?.Count > 0)
 							{
-								foreach (KeyValuePair<Transform, DynamicBone> _kvp in _cmps)
+								foreach (DynamicBone _cmp in _cmps)
 								{
-									if (_kvp.Key.name == _gameObject.name)
+									if ((bool) _cmp.m_Particles.Where(x => x!= null && x?.m_Transform != null)?.Any(x => x.m_Transform == _gameObject.transform))
 									{
-										_cmpDynamicBone = _kvp.Value;
+										_cmpDynamicBone = _cmp;
 										break;
-									}
-									else if (_kvp.Key.GetComponentsInParent<Transform>(true).Any(x => x.name == _gameObject.name))
-									{
-										if (_gameObject.transform.parent.childCount == 1)
-											_cmpDynamicBone = _kvp.Value;
-										break;
-									}
-									else
-									{
-										foreach (Transform x in _kvp.Key.GetComponentsInChildren<Transform>(true).Where(x => x.name == _gameObject.name))
-										{
-											if (x.GetComponentsInParent<ListInfoComponent>(true).FirstOrDefault().name == _selectedParentGameObject.name)
-											{
-												if (_gameObject.transform.parent.childCount == 1)
-													_cmpDynamicBone = _kvp.Value;
-												break;
-											}
-										}
 									}
 								}
 							}

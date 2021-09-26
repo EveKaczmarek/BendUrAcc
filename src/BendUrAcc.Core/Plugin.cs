@@ -24,7 +24,7 @@ namespace BendUrAcc
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.0.7.0";
+		public const string Version = "1.0.9.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 

@@ -9,6 +9,7 @@
     <Import_RootNamespace>BendUrAcc.Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Assets.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controller.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extdata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin.cs" />
@@ -19,5 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)UI.Rotation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI.Scale.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\bonelyfans.unity3d" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\sphere.unity3d" />
   </ItemGroup>
 </Project>

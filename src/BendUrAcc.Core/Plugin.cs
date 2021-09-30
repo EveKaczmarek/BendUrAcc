@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using UnityEngine;
 using ChaCustom;
 
 using BepInEx;
@@ -20,11 +21,14 @@ namespace BendUrAcc
 	[BepInDependency("madevil.JetPack", JetPack.Core.Version)]
 	[BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
 	[BepInPlugin(GUID, Name, Version)]
+	[BepInIncompatibility("KK_ClothesLoadOption")]
+	[BepInIncompatibility("com.jim60105.kk.studiocoordinateloadoption")]
+	[BepInIncompatibility("com.jim60105.kk.coordinateloadoption")]
 	public partial class BendUrAcc : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.0.9.0";
+		public const string Version = "1.1.0.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -36,6 +40,8 @@ namespace BendUrAcc
 		internal static ConfigEntry<float> _cfgRotIncValue;
 		internal static ConfigEntry<float> _cfgSclIncValue;
 
+		internal static ConfigEntry<Color> _cfgBonelyfanColor;
+
 		internal static ManualLogSource _logger;
 		internal static BendUrAcc _instance;
 		internal static Harmony _hooksInstance;
@@ -45,6 +51,7 @@ namespace BendUrAcc
 		internal static Type BoneController;
 		internal static Type ChaAccessoryClothes;
 		internal static Dictionary<string, Type> _types = new Dictionary<string, Type>();
+		internal static string _boneInicatorName = "BendUrAcc_indicator";
 
 		private void Awake()
 		{
@@ -82,6 +89,15 @@ namespace BendUrAcc
 			_cfgPosIncValue = Config.Bind("Config", "Position Increament", 0.001f, new ConfigDescription("Position increament/decrement initiial setting", new AcceptableValueList<float>(0.001f, 0.01f, 0.1f, 1f), new ConfigurationManagerAttributes { Order = 8 }));
 			_cfgRotIncValue = Config.Bind("Config", "Rotation Increament", 1f, new ConfigDescription("Rotation increament/decrement initiial setting", new AcceptableValueList<float>(0.01f, 0.1f, 1f, 10f), new ConfigurationManagerAttributes { Order = 7 }));
 			_cfgSclIncValue = Config.Bind("Config", "Scale Increament", 0.01f, new ConfigDescription("Scale increament/decrement initiial setting", new AcceptableValueList<float>(0.001f, 0.01f, 0.1f, 1f), new ConfigurationManagerAttributes { Order = 6 }));
+
+			_cfgBonelyfanColor = Config.Bind("Maker", "Indicator Color", new Color(1, 0f, 0f, 1f), new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 16, Browsable = !JetPack.CharaStudio.Running }));
+			_cfgBonelyfanColor.SettingChanged += (_sender, _args) =>
+			{
+				if (_assetSphere == null) return;
+				_assetSphere.GetComponent<Renderer>().material.SetColor("_Color", _cfgBonelyfanColor.Value);
+				if (_charaConfigWindow == null || _charaConfigWindow._boneInicator == null) return;
+				_charaConfigWindow._boneInicator.GetComponent<Renderer>().material.SetColor("_Color", _cfgBonelyfanColor.Value);
+			};
 
 			CharacterApi.RegisterExtraBehaviour<BendUrAccController>(ExtDataKey);
 
@@ -178,6 +194,8 @@ namespace BendUrAcc
 				_hooksInstance.UnpatchAll(_hooksInstance.Id);
 				_hooksInstance = null;
 			};
+
+			Init_Indicator();
 		}
 
 		internal static IEnumerator ToggleButtonVisibility()

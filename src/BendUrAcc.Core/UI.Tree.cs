@@ -20,6 +20,8 @@ namespace BendUrAcc
 			internal int _currentCoordinateIndex = -1;
 			internal int _currentSlotIndex = -1;
 			internal List<BendModifier> _currentSlotModifier = new List<BendModifier>();
+			internal Transform _boneInicator = null;
+			private bool _cfgShowInicator = true;
 
 			internal void ResetAll()
 			{
@@ -113,6 +115,26 @@ namespace BendUrAcc
 						GUILayout.EndHorizontal();
 
 						GUILayout.BeginHorizontal(GUI.skin.box);
+						{
+							bool _showIndicator = _cfgShowInicator;
+							if (_showIndicator != GUILayout.Toggle(_cfgShowInicator, new GUIContent(" indicator", "Show a indicator of selected node")))
+							{
+								if (_boneInicator == null)
+								{
+									_cfgShowInicator = false;
+								}
+								else
+								{
+									_cfgShowInicator = !_boneInicator.gameObject.activeSelf;
+									_boneInicator.gameObject.SetActive(_cfgShowInicator);
+								}
+							}
+
+							GUILayout.FlexibleSpace();
+						}
+						GUILayout.EndHorizontal();
+
+						GUILayout.BeginHorizontal(GUI.skin.box);
 						GUILayout.Label(GUI.tooltip);
 						GUILayout.EndHorizontal();
 					}
@@ -149,8 +171,12 @@ namespace BendUrAcc
 				}
 			}
 
+			private static HashSet<string> _ignoreList = new HashSet<string>() { _boneInicatorName, "AAAPK_indicator" };
+
 			private void BuildObjectTree(GameObject _gameObject, int indentLevel)
 			{
+				if (_ignoreList.Contains(_gameObject.name) || _gameObject.name.StartsWith("AccGotHigh_")) return;
+
 				if (_searchTerm.Length == 0 || _gameObject.name.IndexOf(_searchTerm, StringComparison.OrdinalIgnoreCase) > -1 || _openedNodes.Contains(_gameObject.transform.parent.gameObject))
 				{
 					Color _color = GUI.color;
@@ -166,7 +192,11 @@ namespace BendUrAcc
 					else
 						indentLevel = 0;
 
-					if (_gameObject.transform.childCount > 0)
+					if (_gameObject.transform.childCount > 0 && _gameObject.transform.Cast<Transform>().Where(x => _ignoreList.Contains(x.name)).Count() == _gameObject.transform.childCount)
+					{
+						GUILayout.Space(19);
+					}
+					else if (_gameObject.transform.childCount > 0)
 					{
 						if (GUILayout.Toggle(_openedNodes.Contains(_gameObject), "", GUILayout.ExpandWidth(false)))
 							_openedNodes.Add(_gameObject);
@@ -262,6 +292,29 @@ namespace BendUrAcc
 			{
 				_selectedBoneGameObject = _gameObject;
 				_selectedBonePath = BuildParentString(_gameObject);
+
+				if (_gameObject == null)
+				{
+					if (_boneInicator != null)
+						Destroy(_boneInicator.gameObject);
+				}
+				else
+				{
+					if (_boneInicator == null)
+					{
+						Transform _copy = Instantiate(_assetSphere.transform, _selectedBoneGameObject.transform, false);
+						if (_copy != null)
+						{
+							_copy.name = _boneInicatorName;
+							_boneInicator = _copy;
+						}
+					}
+					else
+					{
+						_boneInicator.SetParent(_selectedBoneGameObject.transform, false);
+					}
+					_boneInicator.gameObject.SetActive(_cfgShowInicator);
+				}
 			}
 
 			internal void SetSelectedParent(GameObject _gameObject)

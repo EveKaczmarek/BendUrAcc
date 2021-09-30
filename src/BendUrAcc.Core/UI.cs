@@ -145,6 +145,7 @@ namespace BendUrAcc
 			{
 				_initStyle = true;
 				//_hasFocus = false;
+				SetSelectedBone(null);
 			}
 
 			private void DrawWindowContents(int _windowID)

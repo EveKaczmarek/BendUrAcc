@@ -77,7 +77,7 @@ namespace BendUrAcc
 				_charaConfigWindow._resetOpenedNodes = false;
 				_charaConfigWindow._needRefreshSlotInfo = true;
 
-				if (_noShake && _charaConfigWindow._currentSlotModifier.Count > 0)
+				if (_noShake)
 				{
 					__instance.StartCoroutine(ApplySlotBendModifierList());
 				}
@@ -88,18 +88,21 @@ namespace BendUrAcc
 				yield return JetPack.Toolbox.WaitForEndOfFrame;
 				yield return JetPack.Toolbox.WaitForEndOfFrame;
 
-				GameObject _ca_slot = _charaConfigWindow._selectedParentGameObject;
-				foreach (BendModifier _modifier in _charaConfigWindow._currentSlotModifier)
-				{
-					Transform _node = _ca_slot.transform.Find(_modifier.NodePath);
-					if (_node == null)
+				if (_charaConfigWindow._currentSlotModifier.Count > 0)
+                {
+					GameObject _ca_slot = _charaConfigWindow._selectedParentGameObject;
+					foreach (BendModifier _modifier in _charaConfigWindow._currentSlotModifier)
 					{
-						_logger.LogWarning($"cannot find node game object {_modifier.Node} {_modifier.NodePath}");
-						continue;
+						Transform _node = _ca_slot.transform.Find(_modifier.NodePath);
+						if (_node == null)
+						{
+							_logger.LogWarning($"cannot find node game object {_modifier.Node} {_modifier.NodePath}");
+							continue;
+						}
+						_node.localPosition = _modifier.Position.JsonClone<Vector3>();
+						_node.localEulerAngles = _modifier.Rotation.JsonClone<Vector3>();
+						_node.localScale = _modifier.Scale.JsonClone<Vector3>();
 					}
-					_node.localPosition = _modifier.Position.JsonClone<Vector3>();
-					_node.localEulerAngles = _modifier.Rotation.JsonClone<Vector3>();
-					_node.localScale = _modifier.Scale.JsonClone<Vector3>();
 				}
 			}
 		}

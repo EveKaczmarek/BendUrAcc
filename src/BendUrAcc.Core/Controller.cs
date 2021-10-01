@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 
 using UnityEngine;
 using MessagePack;
@@ -57,7 +56,7 @@ namespace BendUrAcc
 				_data.ForEach(x => x.Coordinate = -1);
 
 				PluginData _pluginData = new PluginData();
-				_pluginData.data.Add("ParentRules", MessagePackSerializer.Serialize(_data));
+				_pluginData.data.Add("BendModifierList", MessagePackSerializer.Serialize(_data));
 				_pluginData.version = ExtDataVer;
 				SetCoordinateExtendedData(coordinate, _pluginData);
 			}
@@ -70,11 +69,9 @@ namespace BendUrAcc
 				PluginData _pluginData = GetCoordinateExtendedData(coordinate);
 				if (_pluginData != null)
 				{
-					/*
 					if (_pluginData.version > ExtDataVer)
-						_logger.Log(LogLevel.Error | LogLevel.Message, $"[OnCoordinateBeingLoaded] ExtendedData.version: {_pluginData.version} is newer than your plugin");
+						_logger.Log(LogLevel.Error | LogLevel.Message, $"[BendUrAcc] ExtendedData.version: {_pluginData.version} is newer than your plugin");
 					else
-					*/
 					{
 						if (_pluginData.data.TryGetValue("BendModifierList", out object _loadedBendModifierList) && _loadedBendModifierList != null)
 						{
@@ -107,11 +104,9 @@ namespace BendUrAcc
 				PluginData _pluginData = GetExtendedData();
 				if (_pluginData != null)
 				{
-					/*
 					if (_pluginData.version > ExtDataVer)
-						_logger.Log(LogLevel.Error | LogLevel.Message, $"[OnReload] ExtendedData.version: {_pluginData.version} is newer than your plugin");
+						_logger.Log(LogLevel.Error | LogLevel.Message, $"[BendUrAcc] ExtendedData.version: {_pluginData.version} is newer than your plugin");
 					else
-					*/
 					{
 						if (_pluginData.data.TryGetValue("BendModifierList", out object _loadedBendModifierList) && _loadedBendModifierList != null)
 						{
@@ -183,6 +178,20 @@ namespace BendUrAcc
 				StartCoroutine(ApplyBendModifierListCoroutine());
 			}
 
+			internal void CheckNoSHake(ChaFileAccessory.PartsInfo _part, GameObject _ca_slot)
+			{
+				bool _noShake = Traverse.Create(_part).Property("noShake").GetValue<bool>();
+				DynamicBone[] _cmps = _ca_slot.GetComponents<DynamicBone>();
+				if (_cmps?.Length > 0)
+				{
+					foreach (DynamicBone _cmp in _cmps)
+					{
+						if (_cmp.m_Root != null)
+							_cmp.enabled = !_noShake;
+					}
+				}
+			}
+
 			internal IEnumerator ApplyBendModifierListCoroutine()
 			{
 				if (_duringLoadChange)
@@ -193,11 +202,19 @@ namespace BendUrAcc
 
 				if (BendModifierCache.Any(x => x.SlotType == SlotType.Accessory))
 				{
+					List<ChaFileAccessory.PartsInfo> _parts = JetPack.Accessory.ListPartsInfo(ChaControl, _currentCoordinateIndex);
 					List<GameObject> _objAccessories = JetPack.Accessory.ListObjAccessory(ChaControl);
 					HashSet<int> _slots = new HashSet<int>(BendModifierCache.Select(x => x.Slot).OrderBy(x => x));
 					foreach (int _slotIndex in _slots)
 					{
+						ChaFileAccessory.PartsInfo _part = _parts.ElementAtOrDefault(_slotIndex);
+						if (_part.type == 120) continue;
+
 						GameObject _ca_slot = _objAccessories.FirstOrDefault(x => x.name == $"ca_slot{_slotIndex:00}");
+						if (_ca_slot == null) continue;
+
+						CheckNoSHake(_part, _ca_slot);
+
 						foreach (BendModifier _modifier in BendModifierCache.Where(x => x.SlotType == SlotType.Accessory && x.Slot == _slotIndex).ToList())
 						{
 							Transform _node = _ca_slot.transform.Find(_modifier.NodePath);

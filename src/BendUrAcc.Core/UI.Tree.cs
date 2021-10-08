@@ -77,7 +77,7 @@ namespace BendUrAcc
 
 			private void DrawGameObjectTree()
 			{
-				GUILayout.BeginHorizontal(GUILayout.Width(280), GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+				GUILayout.BeginHorizontal(GUILayout.Width(300), GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
 				{
 					GUILayout.BeginVertical(GUILayout.ExpandWidth(false));
 					{

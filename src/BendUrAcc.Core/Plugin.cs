@@ -22,13 +22,15 @@ namespace BendUrAcc
 	[BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
 	[BepInPlugin(GUID, Name, Version)]
 	[BepInIncompatibility("KK_ClothesLoadOption")]
+#if !DEBUG
 	[BepInIncompatibility("com.jim60105.kk.studiocoordinateloadoption")]
 	[BepInIncompatibility("com.jim60105.kk.coordinateloadoption")]
+#endif
 	public partial class BendUrAcc : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.1.1.0";
+		public const string Version = "1.1.2.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -61,6 +63,13 @@ namespace BendUrAcc
 
 		private void Start()
 		{
+#if KK && !DEBUG
+			if (JetPack.MoreAccessories.BuggyBootleg)
+			{
+				_logger.LogError($"Could not load {Name} {Version} because it is incompatible with MoreAccessories experimental build");
+				return;
+			}
+#endif
 			_cfgDebugMode = Config.Bind("Debug", "Debug Mode", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 20 }));
 			_cfgMakerWinX = Config.Bind("Maker", "Config Window Startup X", 525f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 19 }));
 			_cfgMakerWinX.SettingChanged += (_sender, _args) =>
@@ -174,6 +183,7 @@ namespace BendUrAcc
 				_charaConfigWindow = gameObject.AddComponent<BendUrAccUI>();
 				_accWinCtrlEnable = MakerAPI.AddAccessoryWindowControl(new MakerButton("BendUrAcc", null, this));
 				_accWinCtrlEnable.OnClick.AddListener(() => _charaConfigWindow.enabled = true);
+				_accWinCtrlEnable.GroupingID = "Madevil";
 				_accWinCtrlEnable.Visible.OnNext(false);
 			};
 

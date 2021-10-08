@@ -18,7 +18,7 @@ namespace BendUrAcc
 			internal bool _onAccTab = false;
 
 			private int _windowRectID;
-			private Vector2 _windowSize = new Vector2(490, 540);
+			private Vector2 _windowSize = new Vector2(510, 540);
 			internal Vector2 _windowPos = new Vector2(525, 80);
 			private Rect _windowRect, _dragWindowRect;
 
@@ -38,6 +38,7 @@ namespace BendUrAcc
 
 			private GUIStyle _windowSolid;
 			private GUIStyle _labelAlignCenter;
+			private GUIStyle _labelBoldOrange;
 			private GUIStyle _textFieldAlignRight;
 			private GUIStyle _textFieldLabelGrey;
 			private GUIStyle _textFieldLabel;
@@ -105,6 +106,10 @@ namespace BendUrAcc
 					_buttonActive.normal.textColor = Color.cyan;
 					_buttonActive.hover.textColor = Color.cyan;
 					_buttonActive.fontStyle = FontStyle.Bold;
+
+					_labelBoldOrange = new GUIStyle(GUI.skin.label);
+					_labelBoldOrange.normal.textColor = new Color(1, 0.7f, 0, 1);
+					_labelBoldOrange.fontStyle = FontStyle.Bold;
 
 					_initStyle = false;
 				}
@@ -210,6 +215,13 @@ namespace BendUrAcc
 						GUILayout.BeginVertical(GUILayout.ExpandWidth(false));
 						{
 							DrawGameObjectTree();
+
+							if (JetPack.MoreAccessories.BuggyBootleg)
+							{
+								GUILayout.BeginHorizontal(GUI.skin.box);
+								GUILayout.TextArea("MoreAccessories experimental build detected\nThis version is not meant for productive use", _labelBoldOrange);
+								GUILayout.EndHorizontal();
+							}
 						}
 						GUILayout.EndVertical();
 

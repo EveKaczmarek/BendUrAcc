@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 using ChaCustom;
@@ -30,7 +31,7 @@ namespace BendUrAcc
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.1.2.0";
+		public const string Version = "1.1.3.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -137,6 +138,9 @@ namespace BendUrAcc
 				if (_instance != null)
 					_types["AccGotHigh"] = _instance.GetType();
 			}
+
+			AccessoriesApi.AccessoryTransferred += (_sender, _args) => GetController(CustomBase.Instance.chaCtrl).AccessoryTransferredHandler(_args.SourceSlotIndex, _args.DestinationSlotIndex);
+			AccessoriesApi.AccessoriesCopied += (_sender, _args) => GetController(CustomBase.Instance.chaCtrl).AccessoriesCopiedHandler((int) _args.CopySource, (int) _args.CopyDestination, _args.CopiedSlotIndexes.ToList());
 
 			JetPack.Chara.OnChangeCoordinateType += (_sender, _args) =>
 			{

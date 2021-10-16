@@ -119,7 +119,12 @@ namespace BendUrAcc
 				RefreshCache();
 				base.OnReload(currentGameMode);
 			}
-			internal void RefreshCache() { }
+
+			internal void RefreshCache()
+			{
+				BendModifierCache.Clear();
+				BendModifierCache = ListCoordinateModifier(_currentCoordinateIndex);
+			}
 
 			internal void AccessoriesCopiedHandler(int _srcCoordinateIndex, int _dstCoordinateIndex, List<int> _copiedSlotIndexes)
 			{
@@ -165,13 +170,7 @@ namespace BendUrAcc
 			{
 				if (_duringLoadChange) return;
 				AccGotHighRemoveEffect();
-				/*
-				_triggerSlots = new HashSet<int>(ListCoordinateRule().OrderBy(x => x.Slot).Select(x => x.Slot));
-				if (_triggerSlots?.Count == 0) return;
-				DebugMsg(LogLevel.Info, $"[ApplyParentRuleList][{_caller}][_currentCoordinateIndex: {_currentCoordinateIndex}][count: {_triggerSlots?.Count}]");
-				*/
-				BendModifierCache.Clear();
-				BendModifierCache = ListCoordinateModifier(_currentCoordinateIndex);
+				RefreshCache();
 
 				if (BendModifierCache?.Count == 0) return;
 

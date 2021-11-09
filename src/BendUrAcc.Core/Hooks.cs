@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 
 using UnityEngine;
 using ChaCustom;
@@ -61,7 +62,7 @@ namespace BendUrAcc
 			[HarmonyPostfix, HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateTypeAndReload), new[] { typeof(bool) })]
 			private static void ChaControl_ChangeCoordinateTypeAndReload_Postfix() => Refresh();
 
-			//[HarmonyPostfix, HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeShakeAccessory), new[] { typeof(int) })]
+			[HarmonyPostfix, HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeShakeAccessory), new[] { typeof(int) })]
 			internal static void ChaControl_ChangeShakeAccessory_Postfix(ChaControl __instance, int slotNo)
 			{
 				if (_charaConfigWindow == null) return;
@@ -70,9 +71,7 @@ namespace BendUrAcc
 				BendUrAccController _pluginCtrl = GetController(__instance);
 				if (_pluginCtrl == null) return;
 
-				//bool _noShake = JetPack.Accessory.GetPartsInfo(__instance, slotNo).noShake;
-				ChaFileAccessory.PartsInfo _part = JetPack.Accessory.GetPartsInfo(__instance, slotNo);
-				bool _noShake = Traverse.Create(_part).Property("noShake").GetValue<bool>();
+				bool _noShake = JetPack.Accessory.GetPartsInfo(__instance, slotNo).noShake;
 
 				_charaConfigWindow._resetOpenedNodes = false;
 				_charaConfigWindow._needRefreshSlotInfo = true;
@@ -89,7 +88,7 @@ namespace BendUrAcc
 				yield return JetPack.Toolbox.WaitForEndOfFrame;
 
 				if (_charaConfigWindow._currentSlotModifier.Count > 0)
-                {
+				{
 					GameObject _ca_slot = _charaConfigWindow._selectedParentGameObject;
 					foreach (BendModifier _modifier in _charaConfigWindow._currentSlotModifier)
 					{

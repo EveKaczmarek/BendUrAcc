@@ -30,8 +30,12 @@ namespace BendUrAcc
 	public partial class BendUrAcc : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
+#if DEBUG
+		public const string Name = "BendUrAcc (Debug Build)";
+#else
 		public const string Name = "BendUrAcc";
-		public const string Version = "1.1.3.0";
+#endif
+		public const string Version = "1.2.0.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -64,10 +68,24 @@ namespace BendUrAcc
 
 		private void Start()
 		{
-#if KK && !DEBUG
+#if KK
 			if (JetPack.MoreAccessories.BuggyBootleg)
 			{
+#if DEBUG
+				if (!JetPack.MoreAccessories.Installed)
+				{
+					_logger.LogError($"Backward compatibility in BuggyBootleg MoreAccessories is disabled");
+					return;
+				}
+#else
 				_logger.LogError($"Could not load {Name} {Version} because it is incompatible with MoreAccessories experimental build");
+				return;
+#endif
+			}
+
+			if (!JetPack.Game.HasDarkness)
+			{
+				_logger.LogError($"This plugin requires Darkness to run");
 				return;
 			}
 #endif
@@ -194,11 +212,6 @@ namespace BendUrAcc
 			MakerAPI.MakerFinishedLoading += (_sender, _args) =>
 			{
 				_hooksInstance = Harmony.CreateAndPatchAll(typeof(HooksMaker), GUID);
-
-				if (JetPack.Game.HasDarkness)
-				{
-					_hooksInstance.Patch(Type.GetType("ChaControl, Assembly-CSharp").GetMethod("ChangeShakeAccessory", AccessTools.all, null, new[] { typeof(int) }, null), postfix: new HarmonyMethod(typeof(HooksMaker), nameof(HooksMaker.ChaControl_ChangeShakeAccessory_Postfix)));
-				}
 			};
 
 			MakerAPI.MakerExiting += (_sender, _args) =>
@@ -250,6 +263,8 @@ namespace BendUrAcc
 			if (_pluginCtrl == null) return;
 
 			_pluginCtrl.RefreshCache();
+
+			_pluginCtrl._duringLoadChange = false;
 		}
 
 		internal static void OnChangeCoordinateType_Coroutine(ChaControl _chaCtrl)

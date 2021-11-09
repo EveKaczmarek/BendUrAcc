@@ -117,6 +117,7 @@ namespace BendUrAcc
 					}
 				}
 				RefreshCache();
+				StartCoroutine(OnCoordinateBeingLoadedCoroutine());
 				base.OnReload(currentGameMode);
 			}
 
@@ -179,12 +180,20 @@ namespace BendUrAcc
 
 			internal void CheckNoSHake(ChaFileAccessory.PartsInfo _part, GameObject _ca_slot)
 			{
-				bool _noShake = Traverse.Create(_part).Property("noShake").GetValue<bool>();
-				DynamicBone[] _cmps = _ca_slot.GetComponents<DynamicBone>();
+				bool _noShake = _part.noShake;
+				DynamicBone[] _cmps = _ca_slot.GetComponentsInChildren<DynamicBone>(true);
 				if (_cmps?.Length > 0)
 				{
 					foreach (DynamicBone _cmp in _cmps)
 					{
+						if (_cmp == null) continue;
+						if (_cmp.gameObject != _ca_slot)
+						{
+							GameObject _parent = _cmp.GetComponentsInParent<ListInfoComponent>(true)?.FirstOrDefault()?.gameObject;
+							if (_parent != null && _parent != _ca_slot)
+								continue;
+						}
+
 						if (_cmp.m_Root != null)
 							_cmp.enabled = !_noShake;
 					}

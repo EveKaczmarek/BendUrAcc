@@ -100,6 +100,7 @@ namespace BendUrAcc
 							if (GUILayout.Button("Slot", _gloButtonM))
 							{
 								_pluginCtrl.RemoveSlotModifier(_currentCoordinateIndex, _currentSlotIndex);
+								_pluginCtrl.RefreshCache();
 								_needRefreshSlotInfo = true;
 							}
 
@@ -108,6 +109,7 @@ namespace BendUrAcc
 							if (GUILayout.Button("Node", _gloButtonM))
 							{
 								_pluginCtrl.RemoveModifier(_currentCoordinateIndex, _currentSlotIndex, _selectedBoneGameObject.name);
+								_pluginCtrl.RefreshCache();
 								_needRefreshSlotInfo = true;
 							}
 							GUI.enabled = true;

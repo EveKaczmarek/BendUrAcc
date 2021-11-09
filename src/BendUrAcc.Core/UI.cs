@@ -74,9 +74,8 @@ namespace BendUrAcc
 				if (!_onAccTab) return;
 				if (CustomBase.Instance?.chaCtrl == null) return;
 				if (CustomBase.Instance.customCtrl.hideFrontUI) return;
-#if KK
-				if (!Manager.Scene.Instance.AddSceneName.IsNullOrEmpty() && Manager.Scene.Instance.AddSceneName != "CustomScene") return;
-#endif
+				if (JetPack.Toolbox.SceneIsOverlap()) return;
+				if (!JetPack.Toolbox.SceneAddSceneName().IsNullOrEmpty() && JetPack.Toolbox.SceneAddSceneName() != "CustomScene") return;
 
 				if (_ScreenRes.x != Screen.width || _ScreenRes.y != Screen.height)
 					ChangeRes();

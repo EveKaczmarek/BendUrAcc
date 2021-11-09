@@ -7,4 +7,4 @@ using static BendUrAcc.BendUrAcc;
 [assembly: AssemblyProduct(Name)]
 [assembly: AssemblyVersion(Version)]
 [assembly: AssemblyFileVersion(Version)]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright © 2021")]

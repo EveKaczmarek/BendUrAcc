@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +42,7 @@ namespace BendUrAcc
 		internal static ConfigEntry<float> _cfgMakerWinX;
 		internal static ConfigEntry<float> _cfgMakerWinY;
 		internal static ConfigEntry<bool> _cfgMakerWinResScale;
-
+		internal static ConfigEntry<bool> _cfgDragPass;
 		internal static ConfigEntry<float> _cfgPosIncValue;
 		internal static ConfigEntry<float> _cfgRotIncValue;
 		internal static ConfigEntry<float> _cfgSclIncValue;
@@ -90,6 +90,16 @@ namespace BendUrAcc
 			}
 #endif
 			_cfgDebugMode = Config.Bind("Debug", "Debug Mode", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 20 }));
+			_cfgDragPass = Config.Bind("Maker", "Drag Pass Mode", false, new ConfigDescription("Setting window will not block mouse dragging", null, new ConfigurationManagerAttributes { Order = 15, Browsable = !JetPack.CharaStudio.Running }));
+			_cfgDragPass.SettingChanged += (_sender, _args) =>
+			{
+				if (_charaConfigWindow == null) return;
+				if (_charaConfigWindow._passThrough != _cfgDragPass.Value)
+				{
+					_charaConfigWindow._passThrough = _cfgDragPass.Value;
+				}
+			};
+
 			_cfgMakerWinX = Config.Bind("Maker", "Config Window Startup X", 525f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 19 }));
 			_cfgMakerWinX.SettingChanged += (_sender, _args) =>
 			{

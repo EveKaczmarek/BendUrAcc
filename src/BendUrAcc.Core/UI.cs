@@ -27,8 +27,9 @@ namespace BendUrAcc
 			private Vector2 _ScreenRes = Vector2.zero;
 			private Vector2 _resScaleFactor = Vector2.one;
 			private Matrix4x4 _resScaleMatrix;
-			//private bool _hasFocus = false;
+			private bool _hasFocus = false;
 			private bool _initStyle = true;
+			internal bool _passThrough = false;
 
 			private readonly GUILayoutOption _gloButtonS = GUILayout.Width(20);
 			private readonly GUILayoutOption _gloButtonM = GUILayout.Width(60);
@@ -51,6 +52,7 @@ namespace BendUrAcc
 				DontDestroyOnLoad(this);
 				enabled = false;
 
+				_passThrough = _cfgDragPass.Value;
 				_windowPos.x = _cfgMakerWinX.Value;
 				_windowPos.y = _cfgMakerWinY.Value;
 				_windowRect = new Rect(_windowPos.x, _windowPos.y, _windowSize.x, _windowSize.y);
@@ -131,12 +133,12 @@ namespace BendUrAcc
 				_dragWindowRect = GUILayout.Window(_windowRectID, _windowRect, DrawWindowContents, "", _windowSolid);
 				_windowRect.x = _dragWindowRect.x;
 				_windowRect.y = _dragWindowRect.y;
-				/*
+
 				Event _windowEvent = Event.current;
 				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
 					_hasFocus = false;
-				*/
-				if (/*_hasFocus && */JetPack.UI.GetResizedRect(_windowRect).Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+
+				if ((!_passThrough || _hasFocus) && JetPack.UI.GetResizedRect(_windowRect).Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
 					Input.ResetInputAxes();
 			}
 
@@ -148,7 +150,7 @@ namespace BendUrAcc
 			private void OnDisable()
 			{
 				_initStyle = true;
-				//_hasFocus = false;
+				_hasFocus = false;
 				SetSelectedBone(null);
 			}
 
@@ -179,17 +181,24 @@ namespace BendUrAcc
 #if KKS
 				GUI.backgroundColor = Color.grey;
 #endif
-				/*
+
 				Event _windowEvent = Event.current;
 				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
 					_hasFocus = true;
-				*/
+
 				GUI.Box(new Rect(0, 0, _windowSize.x, _windowSize.y), _windowBGtex);
 				GUI.Box(new Rect(0, 0, _windowSize.x, 30), $"BendUrAcc - Slot{_currentSlotIndex + 1:00}", _labelAlignCenter);
 
 				if (GUI.Button(new Rect(_windowSize.x - 27, 4, 23, 23), new GUIContent("X", "Close this window")))
 				{
 					CloseWindow();
+				}
+
+				if (GUI.Button(new Rect(_windowSize.x - 50, 4, 23, 23), new GUIContent("0", "Config window will not block mouse drag from outside (experemental)"), (_passThrough ? _buttonActive : GUI.skin.button)))
+				{
+					_passThrough = !_passThrough;
+					_cfgDragPass.Value = _passThrough;
+					_logger.LogMessage($"Pass through mode: {(_passThrough ? "ON" : "OFF")}");
 				}
 
 				if (GUI.Button(new Rect(4, 4, 23, 23), new GUIContent("<", "Reset window position")))

@@ -14,13 +14,16 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extdata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Hooks.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UI.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UI.Tree.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UI.Position.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UI.Rotation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UI.Scale.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\UI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\UI.Tree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\UI.Position.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\UI.Rotation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\UI.Scale.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\bonelyfans.unity3d" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\sphere.unity3d" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)UI\" />
   </ItemGroup>
 </Project>

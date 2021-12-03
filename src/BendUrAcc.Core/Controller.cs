@@ -178,26 +178,14 @@ namespace BendUrAcc
 				StartCoroutine(ApplyBendModifierListCoroutine());
 			}
 
-			internal void CheckNoSHake(ChaFileAccessory.PartsInfo _part, GameObject _ca_slot)
+			internal void CheckNoShake(ChaFileAccessory.PartsInfo _part, GameObject _ca_slot)
 			{
 				bool _noShake = _part.noShake;
-				DynamicBone[] _cmps = _ca_slot.GetComponentsInChildren<DynamicBone>(true);
-				if (_cmps?.Length > 0)
-				{
-					foreach (DynamicBone _cmp in _cmps)
-					{
-						if (_cmp == null) continue;
-						if (_cmp.gameObject != _ca_slot)
-						{
-							GameObject _parent = _cmp.GetComponentsInParent<ListInfoComponent>(true)?.FirstOrDefault()?.gameObject;
-							if (_parent != null && _parent != _ca_slot)
-								continue;
-						}
+				List<DynamicBone> _cmps = _ca_slot.GetComponent<ComponentLookupTable>().Components<DynamicBone>().Where(x => x.m_Root != null).ToList();
+				if (_cmps.Count == 0) return;
 
-						if (_cmp.m_Root != null)
-							_cmp.enabled = !_noShake;
-					}
-				}
+				foreach (DynamicBone _cmp in _cmps)
+					_cmp.enabled = !_noShake;
 			}
 
 			internal IEnumerator ApplyBendModifierListCoroutine()
@@ -221,7 +209,7 @@ namespace BendUrAcc
 						GameObject _ca_slot = _objAccessories.FirstOrDefault(x => x.name == $"ca_slot{_slotIndex:00}");
 						if (_ca_slot == null) continue;
 
-						CheckNoSHake(_part, _ca_slot);
+						CheckNoShake(_part, _ca_slot);
 
 						foreach (BendModifier _modifier in BendModifierCache.Where(x => x.SlotType == SlotType.Accessory && x.Slot == _slotIndex).ToList())
 						{

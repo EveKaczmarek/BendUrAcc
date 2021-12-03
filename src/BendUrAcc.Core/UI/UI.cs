@@ -7,6 +7,8 @@ using ChaCustom;
 
 using BepInEx.Configuration;
 
+using JetPack;
+
 namespace BendUrAcc
 {
 	public partial class BendUrAcc
@@ -174,6 +176,8 @@ namespace BendUrAcc
 							_currentSlotModifier = _pluginCtrl.ListSlotModifier(_currentCoordinateIndex, _currentSlotIndex);
 							//_currentSlotModifierNodes = _currentSlotModifier?.Count > 0 ? new HashSet<string>(_currentSlotModifier.Select(x => x.Node)) : new HashSet<string>();
 							_currentSlotModifierNodes = new HashSet<string>(_currentSlotModifier.Select(x => x.Node));
+
+							_currentSlotChildren.AddRange(_ca_slot.GetComponent<ComponentLookupTable>().Components<Transform>());
 						}
 					}
 				}
@@ -227,7 +231,7 @@ namespace BendUrAcc
 							if (JetPack.MoreAccessories.BuggyBootleg)
 							{
 								GUILayout.BeginHorizontal(GUI.skin.box);
-								GUILayout.TextArea("MoreAccessories experimental build detected\nThis version is not meant for productive use", _labelBoldOrange);
+								GUILayout.TextArea("MoreAccessories experimental build detected\nThis version is not meant for production use", _labelBoldOrange);
 								GUILayout.EndHorizontal();
 							}
 						}

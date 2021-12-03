@@ -49,6 +49,8 @@ namespace BendUrAcc
 				_selectedBonePath = "";
 				_selectedParentPath = "";
 
+				_currentSlotChildren.Clear();
+
 				_needRefreshSlotInfo = false;
 			}
 
@@ -163,6 +165,8 @@ namespace BendUrAcc
 
 			internal bool _enableEdit = false;
 
+			internal List<Transform> _currentSlotChildren = new List<Transform>();
+
 			internal bool _isDynamicBoneEnabled
 			{
 				get
@@ -220,7 +224,8 @@ namespace BendUrAcc
 						GUILayout.Button(new GUIContent(_gameObject.name, "ca_slot is used for PartsInfo, do not edit"), GUILayout.ExpandWidth(false));
 						GUI.enabled = true;
 					}
-					else if (_gameObject.GetComponentsInParent<ListInfoComponent>(true).FirstOrDefault().name != _selectedParentGameObject.name)
+					//else if (_gameObject.GetComponentsInParent<ListInfoComponent>(true).FirstOrDefault().name != _selectedParentGameObject.name)
+					else if (!_currentSlotChildren.Contains(_gameObject.transform))
 					{
 						GUI.enabled = false;
 						GUILayout.Button(new GUIContent(_gameObject.name, "This is from another slot, do not edit"), GUILayout.ExpandWidth(false));
@@ -246,12 +251,12 @@ namespace BendUrAcc
 						{
 							_enableEdit = true;
 							_cmpDynamicBone = null;
-							List<DynamicBone> _cmps = _selectedParentGameObject.GetComponents<DynamicBone>()?.Where(x => x.m_Root != null).ToList();
+							List<DynamicBone> _cmps = _selectedParentGameObject.GetComponent<ComponentLookupTable>().Components<DynamicBone>().Where(x => x.m_Root != null).ToList();
 							if (_cmps?.Count > 0)
 							{
 								foreach (DynamicBone _cmp in _cmps)
 								{
-									if ((bool) _cmp.m_Particles.Where(x => x!= null && x?.m_Transform != null)?.Any(x => x.m_Transform == _gameObject.transform))
+									if ((bool) _cmp.m_Particles?.Where(x => x != null && x.m_Transform != null).Any(x => x.m_Transform == _gameObject.transform))
 									{
 										_cmpDynamicBone = _cmp;
 										break;

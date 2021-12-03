@@ -2,9 +2,9 @@
 using static BendUrAcc.BendUrAcc;
 
 [assembly: AssemblyTitle(Name)]
-[assembly: AssemblyCompany("https://github.com/Madevil/BendUrAcc")]
+[assembly: AssemblyCompany("https://github.com/Madevil")]
 [assembly: AssemblyDescription(Name + " (req. JetPack v" + JetPack.Core.Version + ")")]
 [assembly: AssemblyProduct(Name)]
 [assembly: AssemblyVersion(Version)]
 [assembly: AssemblyFileVersion(Version)]
-[assembly: AssemblyCopyright("Copyright © 2021")]
+[assembly: AssemblyCopyright("© 2021 Madevil Evolution. All rights reserved.")]

@@ -35,7 +35,7 @@ namespace BendUrAcc
 #else
 		public const string Name = "BendUrAcc";
 #endif
-		public const string Version = "1.2.0.0";
+		public const string Version = "1.3.0.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -140,15 +140,25 @@ namespace BendUrAcc
 			CharacterApi.RegisterExtraBehaviour<BendUrAccController>(ExtDataKey);
 
 			{
+				string _version = "1.10.3";
 				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("madevil.kk.MovUrAcc");
-				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.10.3.0"))
-					_logger.LogError($"MovUrAcc 1.10.3.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
+				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, _version))
+				{
+					_logger.LogError($"MovUrAcc {_version}+ is required to work properly, version {_instance.Info.Metadata.Version} detected");
+					if (!JetPack.Game.ConsoleActive)
+						_logger.LogMessage($"[{Name}] MovUrAcc {_version}+ is required to work properly, version {_instance.Info.Metadata.Version} detected");
+				}
 			}
 
 			{
+				string _version = "1.7.2";
 				BaseUnityPlugin _instance = JetPack.Toolbox.GetPluginInstance("madevil.kk.ca");
-				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, "1.7.2.0"))
-					_logger.LogError($"Character Accessory 1.7.2.0 is required to work properly, version {_instance.Info.Metadata.Version} detected");
+				if (_instance != null && !JetPack.Toolbox.PluginVersionCompare(_instance, _version))
+				{
+					_logger.LogError($"Character Accessory {_version}+ is required to work properly, version {_instance.Info.Metadata.Version} detected");
+					if (!JetPack.Game.ConsoleActive)
+						_logger.LogMessage($"[{Name}] Character Accessory {_version}+ is required to work properly, version {_instance.Info.Metadata.Version} detected");
+				}
 			}
 
 			{

@@ -35,7 +35,7 @@ namespace BendUrAcc
 #else
 		public const string Name = "BendUrAcc";
 #endif
-		public const string Version = "1.3.0.0";
+		public const string Version = "1.3.1.0";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -91,17 +91,17 @@ namespace BendUrAcc
 #endif
 			_cfgDebugMode = Config.Bind("Debug", "Debug Mode", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 20 }));
 			_cfgDragPass = Config.Bind("Maker", "Drag Pass Mode", false, new ConfigDescription("Setting window will not block mouse dragging", null, new ConfigurationManagerAttributes { Order = 15, Browsable = !JetPack.CharaStudio.Running }));
-			_cfgDragPass.SettingChanged += (_sender, _args) =>
+			_cfgDragPass.SettingChanged += delegate
 			{
-				if (_charaConfigWindow == null) return;
-				if (_charaConfigWindow._passThrough != _cfgDragPass.Value)
+				if (_charaConfigWindow != null)
 				{
-					_charaConfigWindow._passThrough = _cfgDragPass.Value;
+					if (_charaConfigWindow._passThrough != _cfgDragPass.Value)
+						_charaConfigWindow._passThrough = _cfgDragPass.Value;
 				}
 			};
 
 			_cfgMakerWinX = Config.Bind("Maker", "Config Window Startup X", 525f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 19 }));
-			_cfgMakerWinX.SettingChanged += (_sender, _args) =>
+			_cfgMakerWinX.SettingChanged += delegate
 			{
 				if (_charaConfigWindow != null)
 				{
@@ -110,7 +110,7 @@ namespace BendUrAcc
 				}
 			};
 			_cfgMakerWinY = Config.Bind("Maker", "Config Window Startup Y", 80f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 18 }));
-			_cfgMakerWinY.SettingChanged += (_sender, _args) =>
+			_cfgMakerWinY.SettingChanged += delegate
 			{
 				if (_charaConfigWindow != null)
 				{
@@ -119,25 +119,23 @@ namespace BendUrAcc
 				}
 			};
 			_cfgMakerWinResScale = Config.Bind("Maker", "Config Window Resolution Adjust", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 17 }));
-			_cfgMakerWinResScale.SettingChanged += (_sender, _args) =>
+			_cfgMakerWinResScale.SettingChanged += delegate
 			{
-				if (_charaConfigWindow == null) return;
-				_charaConfigWindow.ChangeRes();
+				if (_charaConfigWindow != null)
+					_charaConfigWindow.ChangeRes();
 			};
 			_cfgPosIncValue = Config.Bind("Config", "Position Increament", 0.001f, new ConfigDescription("Position increament/decrement initiial setting", new AcceptableValueList<float>(0.001f, 0.01f, 0.1f, 1f), new ConfigurationManagerAttributes { Order = 8 }));
 			_cfgRotIncValue = Config.Bind("Config", "Rotation Increament", 1f, new ConfigDescription("Rotation increament/decrement initiial setting", new AcceptableValueList<float>(0.01f, 0.1f, 1f, 10f), new ConfigurationManagerAttributes { Order = 7 }));
 			_cfgSclIncValue = Config.Bind("Config", "Scale Increament", 0.01f, new ConfigDescription("Scale increament/decrement initiial setting", new AcceptableValueList<float>(0.001f, 0.01f, 0.1f, 1f), new ConfigurationManagerAttributes { Order = 6 }));
 
 			_cfgBonelyfanColor = Config.Bind("Maker", "Indicator Color", new Color(1, 0f, 0f, 1f), new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 16, Browsable = !JetPack.CharaStudio.Running }));
-			_cfgBonelyfanColor.SettingChanged += (_sender, _args) =>
+			_cfgBonelyfanColor.SettingChanged += delegate
 			{
 				if (_assetSphere == null) return;
 				_assetSphere.GetComponent<Renderer>().material.SetColor("_Color", _cfgBonelyfanColor.Value);
 				if (_charaConfigWindow == null || _charaConfigWindow._boneInicator == null) return;
 				_charaConfigWindow._boneInicator.GetComponent<Renderer>().material.SetColor("_Color", _cfgBonelyfanColor.Value);
 			};
-
-			CharacterApi.RegisterExtraBehaviour<BendUrAccController>(ExtDataKey);
 
 			{
 				string _version = "1.10.3";
@@ -177,26 +175,17 @@ namespace BendUrAcc
 					_types["AccGotHigh"] = _instance.GetType();
 			}
 
+			CharacterApi.RegisterExtraBehaviour<BendUrAccController>(ExtDataKey);
+
+#if KKS
+			InitCardImport();
+#endif
 			AccessoriesApi.AccessoryTransferred += (_sender, _args) => GetController(CustomBase.Instance.chaCtrl).AccessoryTransferredHandler(_args.SourceSlotIndex, _args.DestinationSlotIndex);
 			AccessoriesApi.AccessoriesCopied += (_sender, _args) => GetController(CustomBase.Instance.chaCtrl).AccessoriesCopiedHandler((int) _args.CopySource, (int) _args.CopyDestination, _args.CopiedSlotIndexes.ToList());
 
-			JetPack.Chara.OnChangeCoordinateType += (_sender, _args) =>
-			{
-				if (_args.State == "Prefix")
-					_charaConfigWindow?.ResetAll();
-				OnChangeCoordinateType(_args);
-			};
+			JetPack.Chara.OnChangeCoordinateType += (_sender, _args) => OnChangeCoordinateType(_args);
 
-			JetPack.MaterialEditor.OnDataApply += (_sender, _args) =>
-			{
-				if (_args.State != "Coroutine") return;
-
-				BendUrAccController _pluginCtrl = GetController((_args.Controller as CharaCustomFunctionController).ChaControl);
-				if (_pluginCtrl == null) return;
-
-				//_pluginCtrl._duringLoadChange = false;
-				_pluginCtrl.ApplyBendModifierList("OnDataApply");
-			};
+			JetPack.MaterialEditor.OnDataApply += (_sender, _args) => OnDataApply(_args);
 
 			JetPack.CharaMaker.OnCvsNavMenuClick += (_sender, _args) =>
 			{
@@ -220,7 +209,7 @@ namespace BendUrAcc
 				}
 			};
 
-			MakerAPI.RegisterCustomSubCategories += (_sender, _args) =>
+			MakerAPI.RegisterCustomSubCategories += delegate
 			{
 				_charaConfigWindow = gameObject.AddComponent<BendUrAccUI>();
 				_accWinCtrlEnable = MakerAPI.AddAccessoryWindowControl(new MakerButton("BendUrAcc", null, this));
@@ -229,12 +218,12 @@ namespace BendUrAcc
 				_accWinCtrlEnable.Visible.OnNext(false);
 			};
 
-			MakerAPI.MakerFinishedLoading += (_sender, _args) =>
+			MakerAPI.MakerFinishedLoading += delegate
 			{
 				_hooksInstance = Harmony.CreateAndPatchAll(typeof(HooksMaker), GUID);
 			};
 
-			MakerAPI.MakerExiting += (_sender, _args) =>
+			MakerAPI.MakerExiting += delegate
 			{
 				Destroy(_charaConfigWindow);
 
@@ -255,44 +244,8 @@ namespace BendUrAcc
 			else
 			{
 				ChaFileAccessory.PartsInfo _part = JetPack.Accessory.GetPartsInfo(CustomBase.Instance.chaCtrl, JetPack.CharaMaker.CurrentAccssoryIndex);
-				_accWinCtrlEnable.Visible.OnNext(_part?.type != 120);
+				_accWinCtrlEnable.Visible.OnNext(_part != null && _part.type != 120);
 			}
-		}
-
-		internal static void OnChangeCoordinateType(JetPack.Chara.ChangeCoordinateTypeEventArgs _args)
-		{
-			if (_args.State == "Prefix")
-				OnChangeCoordinateType_Prefix(_args.ChaControl);
-			else if (_args.State == "Postfix")
-				OnChangeCoordinateType_Postfix(_args.ChaControl);
-			else if (_args.State == "Coroutine")
-				OnChangeCoordinateType_Coroutine(_args.ChaControl);
-		}
-
-		internal static void OnChangeCoordinateType_Prefix(ChaControl _chaCtrl)
-		{
-			BendUrAccController _pluginCtrl = GetController(_chaCtrl);
-			if (_pluginCtrl == null) return;
-
-			_pluginCtrl._duringLoadChange = true;
-		}
-
-		internal static void OnChangeCoordinateType_Postfix(ChaControl _chaCtrl)
-		{
-			BendUrAccController _pluginCtrl = GetController(_chaCtrl);
-			if (_pluginCtrl == null) return;
-
-			_pluginCtrl.RefreshCache();
-
-			_pluginCtrl._duringLoadChange = false;
-		}
-
-		internal static void OnChangeCoordinateType_Coroutine(ChaControl _chaCtrl)
-		{
-			BendUrAccController _pluginCtrl = GetController(_chaCtrl);
-			if (_pluginCtrl == null) return;
-
-			_pluginCtrl._duringLoadChange = false;
 		}
 
 		internal static void AccGotHighRemoveEffect()

@@ -4,6 +4,7 @@ using System.Linq;
 
 using UnityEngine;
 using MessagePack;
+using ParadoxNotion.Serialization;
 
 using ExtensibleSaveFormat;
 

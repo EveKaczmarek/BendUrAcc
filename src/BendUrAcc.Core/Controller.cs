@@ -4,7 +4,6 @@ using System.Linq;
 
 using UnityEngine;
 using MessagePack;
-using ParadoxNotion.Serialization;
 
 using BepInEx.Logging;
 using HarmonyLib;
@@ -84,7 +83,16 @@ namespace BendUrAcc
 						}
 					}
 				}
+				RefreshCache();
+				StartCoroutine(OnCoordinateBeingLoadedCoroutine());
 				base.OnCoordinateBeingLoaded(coordinate);
+			}
+
+			private IEnumerator OnCoordinateBeingLoadedCoroutine()
+			{
+				yield return JetPack.Toolbox.WaitForEndOfFrame;
+				yield return JetPack.Toolbox.WaitForEndOfFrame;
+				_duringLoadChange = false;
 			}
 
 			protected override void OnReload(GameMode currentGameMode)

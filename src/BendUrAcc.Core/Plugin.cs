@@ -35,7 +35,7 @@ namespace BendUrAcc
 #else
 		public const string Name = "BendUrAcc";
 #endif
-		public const string Version = "1.3.1.0";
+		public const string Version = "1.3.1.1";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 

@@ -23,10 +23,6 @@ namespace BendUrAcc
 	[BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
 	[BepInPlugin(GUID, Name, Version)]
 	[BepInIncompatibility("KK_ClothesLoadOption")]
-#if !DEBUG
-	[BepInIncompatibility("com.jim60105.kk.studiocoordinateloadoption")]
-	[BepInIncompatibility("com.jim60105.kk.coordinateloadoption")]
-#endif
 	public partial class BendUrAcc : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.BendUrAcc";
@@ -35,7 +31,7 @@ namespace BendUrAcc
 #else
 		public const string Name = "BendUrAcc";
 #endif
-		public const string Version = "1.3.1.1";
+		public const string Version = "1.3.1.2";
 
 		internal static ConfigEntry<bool> _cfgDebugMode;
 
@@ -64,6 +60,8 @@ namespace BendUrAcc
 		{
 			_logger = base.Logger;
 			_instance = this;
+
+			_cfgDebugMode = Config.Bind("Debug", "Debug Mode", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 20 }));
 		}
 
 		private void Start()
@@ -88,8 +86,21 @@ namespace BendUrAcc
 				_logger.LogError($"This plugin requires Darkness to run");
 				return;
 			}
+
+			if (JetPack.CoordinateLoadOption.Installed)
+			{
+				if (!JetPack.CoordinateLoadOption.Safe)
+				{
+					_logger.LogError($"Could not load {Name} {Version} because it is incompatible with outdated CoordinateLoadOption");
+					return;
+				}
+				else
+				{
+					JetPack.CoordinateLoadOption.AddBlackList(ExtDataKey);
+					_logger.LogDebug($"[CoordinateLoadOption][BlackList: {string.Join(",", JetPack.CoordinateLoadOption.GetBlackList())}]");
+				}
+			}
 #endif
-			_cfgDebugMode = Config.Bind("Debug", "Debug Mode", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 20 }));
 			_cfgDragPass = Config.Bind("Maker", "Drag Pass Mode", false, new ConfigDescription("Setting window will not block mouse dragging", null, new ConfigurationManagerAttributes { Order = 15, Browsable = !JetPack.CharaStudio.Running }));
 			_cfgDragPass.SettingChanged += delegate
 			{
